@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { sendMessageToAI } from '../services/aiService';
 
 const WELCOME_MESSAGE = {
@@ -13,8 +13,19 @@ export const useChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Refs para acceder a los valores actuales sin añadirlos como dependencias
+  // del useCallback, evitando así recreaciones infinitas del callback.
+  const messagesRef = useRef(messages);
+  const isLoadingRef = useRef(isLoading);
+
+  // Mantenemos los refs sincronizados con el estado
+  messagesRef.current = messages;
+  isLoadingRef.current = isLoading;
+
+  // sendMessage no tiene dependencias variables: es estable durante todo
+  // el ciclo de vida del componente, eliminando el riesgo de bucles.
   const sendMessage = useCallback(async (text) => {
-    if (!text.trim() || isLoading) return;
+    if (!text.trim() || isLoadingRef.current) return;
 
     const userMessage = {
       id: `user-${Date.now()}`,
@@ -29,8 +40,8 @@ export const useChat = () => {
     setError(null);
 
     try {
-      // Obtenemos el historial previo (sin el mensaje de bienvenida ni errores)
-      const history = messages.filter(
+      // Leemos el historial desde el ref (valor actual sin dependencia reactiva)
+      const history = messagesRef.current.filter(
         (m) => m.id !== 'welcome' && !m.isError
       );
 
@@ -63,7 +74,7 @@ export const useChat = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading]);
+  }, []); // ✅ Sin dependencias: función estable, sin riesgo de bucle
 
   const clearChat = useCallback(() => {
     setMessages([{ ...WELCOME_MESSAGE, timestamp: new Date() }]);
