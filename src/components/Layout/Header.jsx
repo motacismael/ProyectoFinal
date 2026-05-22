@@ -1,6 +1,9 @@
 import { BookOpen, Menu, RefreshCw } from 'lucide-react';
+import { getAIProvider } from '../../services/aiService';
 
 export const Header = ({ onMenuClick, onClearChat }) => {
+  const provider = getAIProvider();
+
   return (
     <header className="header-gradient text-white shadow-lg z-10 flex-shrink-0">
       <div className="px-4 py-3 flex items-center justify-between">
@@ -24,7 +27,7 @@ export const Header = ({ onMenuClick, onClearChat }) => {
                 Asistente UASD
               </h1>
               <p className="text-[11px] text-blue-200 font-normal mt-0.5 leading-none">
-                Estatuto Orgánico · IA Gemini
+                Estatuto Orgánico · IA {provider.name}
               </p>
             </div>
           </div>
