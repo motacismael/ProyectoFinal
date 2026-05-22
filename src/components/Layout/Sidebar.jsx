@@ -1,6 +1,11 @@
-import { MessageSquare, Info, BookOpen, X, Shield, Users, FileText } from 'lucide-react';
+import { MessageSquare, Info, BookOpen, X, Shield, Users, FileText, LogOut, User } from 'lucide-react';
 
-export const Sidebar = ({ isOpen, onClose }) => {
+export const Sidebar = ({ isOpen, onClose, user, onLogout }) => {
+  // Obtener iniciales o nombre para el avatar
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
+  const userEmail = user?.email || '';
+  const initial = userName.charAt(0).toUpperCase();
+
   return (
     <>
       {/* Overlay para móvil */}
@@ -59,7 +64,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
             <div className="space-y-2">
               <FeatureItem icon={<Shield className="w-4 h-4" />} label="Respuestas verificadas" desc="Basadas en el estatuto oficial" />
               <FeatureItem icon={<FileText className="w-4 h-4" />} label="Cita artículos" desc="Referencia directa al texto legal" />
-              <FeatureItem icon={<MessageSquare className="w-4 h-4" />} label="Historial de sesión" desc="Contexto durante la conversación" />
+              <FeatureItem icon={<MessageSquare className="w-4 h-4" />} label="Historial en la Nube" desc="Tus consultas se guardan seguras" />
               <FeatureItem icon={<Users className="w-4 h-4" />} label="Para todos" desc="Estudiantes, docentes y personal" />
             </div>
           </div>
@@ -68,13 +73,39 @@ export const Sidebar = ({ isOpen, onClose }) => {
           <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
             <h4 className="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-2">
               <MessageSquare className="w-3.5 h-3.5" />
-              Sesión actual
+              Sesión Protegida
             </h4>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Las conversaciones no se guardan entre sesiones. Al cerrar el navegador, el historial se borra.
+              Tus consultas se asocian de forma segura a tu cuenta y se almacenan de manera privada en tu historial.
             </p>
           </div>
         </div>
+
+        {/* Perfil del Usuario y Logout */}
+        {user && (
+          <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-uasd-blue text-white font-bold text-sm flex items-center justify-center shadow-md">
+                {initial}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-gray-800 truncate leading-snug">
+                  {userName}
+                </p>
+                <p className="text-[10px] text-gray-400 truncate leading-none mt-0.5">
+                  {userEmail}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onLogout}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 rounded-xl border border-red-100 hover:border-red-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow active:scale-95"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="p-4 border-t border-gray-100 flex-shrink-0">
@@ -82,7 +113,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
             Desarrollado con <span className="text-red-400">♥</span> para Proyecto Final
           </p>
           <p className="text-[10px] text-center text-gray-300 mt-1">
-            Powered by Google Gemini
+            Powered by Supabase & Gemini
           </p>
         </div>
       </aside>

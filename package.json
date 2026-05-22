@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.106.1",
     "lucide-react": "^1.16.0",
     "markdown-to-jsx": "^9.8.1",
     "react": "^19.2.6",
