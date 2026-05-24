@@ -1,6 +1,8 @@
-import { MessageSquare, Info, BookOpen, X, Shield, Users, FileText, LogOut, User } from 'lucide-react';
+import { MessageSquare, Info, BookOpen, X, Shield, Users, FileText, LogOut } from 'lucide-react';
+import { getAIProvider } from '../../services/aiService';
 
 export const Sidebar = ({ isOpen, onClose, user, onLogout }) => {
+  const provider = getAIProvider();
   // Obtener iniciales o nombre para el avatar
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
   const userEmail = user?.email || '';
@@ -113,7 +115,7 @@ export const Sidebar = ({ isOpen, onClose, user, onLogout }) => {
             Desarrollado con <span className="text-red-400">♥</span> para Proyecto Final
           </p>
           <p className="text-[10px] text-center text-gray-300 mt-1">
-            Powered by Supabase & Gemini
+            Powered by Supabase & {provider.name}
           </p>
         </div>
       </aside>

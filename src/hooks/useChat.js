@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { sendMessageToAI } from '../services/aiService';
 import { supabase } from '../supabaseClient';
 
@@ -29,12 +29,14 @@ export const useChat = () => {
   const messagesRef = useRef(messages);
   const isLoadingRef = useRef(isLoading);
 
-  // Mantenemos los refs sincronizados con el estado
-  messagesRef.current = messages;
-  isLoadingRef.current = isLoading;
+  // Mantenemos los refs sincronizados con el estado de forma segura
+  useEffect(() => {
+    messagesRef.current = messages;
+    isLoadingRef.current = isLoading;
+  }, [messages, isLoading]);
 
   // Función interna para persistir mensajes en Supabase de forma segura
-  const saveToSupabase = async (sender, text, isError = false) => {
+  const saveToSupabase = useCallback(async (sender, text, isError = false) => {
     try {
       const { error: insertError } = await supabase
         .from('chat_history')
@@ -53,7 +55,7 @@ export const useChat = () => {
     } catch (err) {
       console.error('Error de conexión con Supabase:', err);
     }
-  };
+  }, [sessionId]);
 
   // sendMessage no tiene dependencias variables: es estable durante todo
   // el ciclo de vida del componente, eliminando el riesgo de bucles.
@@ -116,7 +118,7 @@ export const useChat = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId]); // Solo depende de sessionId, que no cambia tras inicializarse
+  }, [saveToSupabase]); // Solo depende de saveToSupabase
 
   const clearChat = useCallback(() => {
     setMessages([{ ...WELCOME_MESSAGE, timestamp: new Date() }]);

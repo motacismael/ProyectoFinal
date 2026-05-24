@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Mic } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 const MAX_CHARS = 1000;
 
