@@ -1,49 +1,61 @@
 import { useState, useRef, useEffect } from 'react';
-import { Header } from './components/Layout/Header';
-import { Sidebar } from './components/Layout/Sidebar';
-import { ChatMessage } from './components/Chat/ChatMessage';
-import { ChatInput } from './components/Chat/ChatInput';
-import { ChatLoading } from './components/Chat/ChatLoading';
+import { Header }            from './components/Layout/Header';
+import { Sidebar }           from './components/Layout/Sidebar';
+import { ChatMessage }       from './components/Chat/ChatMessage';
+import { ChatInput }         from './components/Chat/ChatInput';
+import { ChatLoading }       from './components/Chat/ChatLoading';
 import { SuggestedQuestions } from './components/Suggested/SuggestedQuestions';
-import { useChat } from './hooks/useChat';
-import { supabase } from './supabaseClient';
-import { AuthScreen } from './components/Auth/AuthScreen';
-import { BookOpen } from 'lucide-react';
+import { useChat }           from './hooks/useChat';
+import { supabase }          from './supabaseClient';
+import { AuthScreen }        from './components/Auth/AuthScreen';
+import { BookOpen }          from 'lucide-react';
 
 function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen]   = useState(false);
+  const [user, setUser]                     = useState(null);
+  const [authLoading, setAuthLoading]       = useState(true);
+  // Track the id of the most recent bot message for typewriter effect
+  const [latestBotId, setLatestBotId]       = useState(null);
   const { messages, isLoading, sendMessage, clearChat } = useChat();
   const messagesEndRef = useRef(null);
 
-  // Escuchar estado de autenticación de Supabase
+  /* ── Auth listener ── */
   useEffect(() => {
-    // 1. Obtener la sesión actual al cargar
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
     });
 
-    // 2. Escuchar cambios de estado en la autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        setAuthLoading(false);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, []);
+
+  /* ── Track latest bot message for typewriter ── */
+  useEffect(() => {
+    const botMessages = messages.filter(m => m.sender === 'bot');
+    if (botMessages.length > 0) {
+      const last = botMessages[botMessages.length - 1];
+      setLatestBotId(last.id);
+    }
+  }, [messages]);
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
       clearChat();
+      setLatestBotId(null);
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
     }
   };
 
-  // Auto-scroll al último mensaje
+  /* ── Auto-scroll ── */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
@@ -52,35 +64,53 @@ function App() {
     sendMessage(question);
   };
 
-  // Mostrar pantalla de bienvenida solo cuando hay 1 mensaje (el de bienvenida)
   const showWelcome = messages.length === 1;
 
-  // 1. Pantalla de carga mientras se recupera la sesión
+  /* ── Loading screen ── */
   if (authLoading) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="w-14 h-14 header-gradient rounded-2xl flex items-center justify-center border border-white/20 shadow-md animate-pulse">
-            <BookOpen className="w-6 h-6 text-white" />
+      <div
+        className="min-h-screen w-full flex flex-col items-center justify-center"
+        style={{ background: 'var(--surface-base)' }}
+      >
+        <div className="flex flex-col items-center gap-5">
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(135deg, oklch(0.38 0.19 264), oklch(0.50 0.20 264))',
+              boxShadow: '0 8px 32px oklch(0.38 0.19 264 / 0.4)',
+              animation: 'glowPulse 2.5s ease-in-out infinite',
+            }}
+          >
+            <BookOpen className="w-7 h-7" style={{ color: 'oklch(0.97 0.005 250)' }} />
           </div>
-          <div className="w-8 h-8 border-3 border-uasd-blue border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-semibold text-gray-500 tracking-wider">
-            Iniciando Asistente UASD...
+
+          {/* Spinner */}
+          <div
+            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: 'oklch(0.38 0.19 264)', borderTopColor: 'transparent' }}
+          />
+
+          <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
+            Iniciando Asistente UASD…
           </p>
         </div>
       </div>
     );
   }
 
-  // 2. Si no hay usuario logueado, mostrar pantalla de Login/Registro
+  /* ── Auth gate ── */
   if (!user) {
     return <AuthScreen />;
   }
 
-  // 3. Aplicación principal (Chatbot)
+  /* ── Main app ── */
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar con soporte para Auth */}
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ background: 'var(--surface-base)' }}
+    >
+      {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -96,7 +126,10 @@ function App() {
         />
 
         {/* Chat area */}
-        <main className="flex-1 overflow-y-auto chat-scroll p-4 md:p-6 lg:p-8 flex flex-col items-center">
+        <main
+          className="flex-1 overflow-y-auto chat-scroll p-4 md:p-6 flex flex-col items-center"
+          style={{ background: 'var(--surface-base)' }}
+        >
           <div className="w-full max-w-3xl flex-1 flex flex-col">
             {/* Welcome / Suggested questions */}
             {showWelcome && (
@@ -109,19 +142,22 @@ function App() {
             {!showWelcome && (
               <div className="flex-1 pt-2">
                 {messages.map((msg) => (
-                  <ChatMessage key={msg.id} message={msg} />
+                  <ChatMessage
+                    key={msg.id}
+                    message={msg}
+                    isNew={msg.id === latestBotId && !isLoading}
+                  />
                 ))}
                 {isLoading && <ChatLoading />}
                 <div ref={messagesEndRef} className="h-4" />
               </div>
             )}
 
-            {/* When we have messages, first message (welcome) is shown as chat bubble */}
             {showWelcome && <div ref={messagesEndRef} />}
           </div>
         </main>
 
-        {/* Input area */}
+        {/* Input */}
         <ChatInput onSendMessage={sendMessage} isLoading={isLoading} />
       </div>
     </div>

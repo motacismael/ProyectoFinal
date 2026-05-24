@@ -1,4 +1,109 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================
+   EASING & GLOBAL VARS (theme-independent)
+   ============================================ */
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-quart:  cubic-bezier(0.5, 0, 0.75, 0);
+
+  /* Brand (constant) */
+  --uasd-blue:        oklch(0.38 0.19 264);
+  --uasd-blue-light:  oklch(0.50 0.20 264);
+  --uasd-blue-vivid:  oklch(0.55 0.22 264);
+  --uasd-blue-dim:    oklch(0.38 0.19 264 / 0.15);
+  --uasd-blue-glow:   oklch(0.38 0.19 264 / 0.35);
+  --uasd-red:         oklch(0.48 0.24 14);
+
+  /* Sidebar */
+  --sidebar-width-open:      280px;
+  --sidebar-width-collapsed: 68px;
+  --sidebar-transition:      300ms var(--ease-out-quart);
+
+  /* Theme transition speed */
+  --theme-transition: 350ms var(--ease-out-quart);
+}
+
+/* ============================================
+   DARK THEME TOKENS  (html.dark  or default)
+   ============================================ */
+html, html.dark {
+  color-scheme: dark;
+
+  --surface-base:      oklch(0.09 0.018 250);
+  --surface-raised:    oklch(0.12 0.020 250);
+  --surface-overlay:   oklch(0.16 0.018 250);
+  --surface-card:      oklch(0.13 0.016 250);
+  --surface-input:     oklch(0.14 0.014 250);
+  --surface-sidebar:   oklch(0.10 0.020 250);
+
+  --text-primary:      oklch(0.94 0.005 250);
+  --text-secondary:    oklch(0.70 0.010 250);
+  --text-muted:        oklch(0.50 0.008 250);
+  --text-disabled:     oklch(0.35 0.006 250);
+
+  --border-subtle:     oklch(0.22 0.012 250);
+  --border-normal:     oklch(0.28 0.015 250);
+  --border-strong:     oklch(0.38 0.018 250);
+
+  --shadow-sm:         0 1px 3px oklch(0 0 0 / 0.4);
+  --shadow-md:         0 4px 16px oklch(0 0 0 / 0.5);
+  --shadow-lg:         0 8px 32px oklch(0 0 0 / 0.6);
+  --shadow-glow:       0 0 24px var(--uasd-blue-glow);
+
+  /* Auth brand panel */
+  --auth-brand-bg:     oklch(0.11 0.022 255);
+  --auth-dot-color:    oklch(0.22 0.012 250);
+  --auth-orb-1-op:     0.18;
+  --auth-orb-2-op:     0.12;
+
+  /* Theme toggle */
+  --toggle-bg:         oklch(0.16 0.018 250);
+  --toggle-border:     oklch(0.28 0.015 250);
+  --toggle-icon-color: oklch(0.72 0.18 60);   /* warm yellow for moon/sun */
+}
+
+/* ============================================
+   LIGHT THEME TOKENS   html.light
+   ============================================ */
+html.light {
+  color-scheme: light;
+
+  --surface-base:      oklch(0.97 0.006 250);
+  --surface-raised:    oklch(1.00 0.003 250);
+  --surface-overlay:   oklch(0.94 0.008 250);
+  --surface-card:      oklch(0.99 0.004 250);
+  --surface-input:     oklch(0.96 0.006 250);
+  --surface-sidebar:   oklch(0.98 0.005 260);
+
+  --text-primary:      oklch(0.18 0.018 250);
+  --text-secondary:    oklch(0.38 0.012 250);
+  --text-muted:        oklch(0.52 0.010 250);
+  --text-disabled:     oklch(0.68 0.006 250);
+
+  --border-subtle:     oklch(0.88 0.010 250);
+  --border-normal:     oklch(0.80 0.012 250);
+  --border-strong:     oklch(0.68 0.014 250);
+
+  --shadow-sm:         0 1px 3px oklch(0.18 0.018 250 / 0.08);
+  --shadow-md:         0 4px 16px oklch(0.18 0.018 250 / 0.10);
+  --shadow-lg:         0 8px 32px oklch(0.18 0.018 250 / 0.12);
+  --shadow-glow:       0 0 24px var(--uasd-blue-glow);
+
+  /* Auth brand panel */
+  --auth-brand-bg:     oklch(0.95 0.010 264);
+  --auth-dot-color:    oklch(0.82 0.018 264);
+  --auth-orb-1-op:     0.12;
+  --auth-orb-2-op:     0.08;
+
+  /* Theme toggle */
+  --toggle-bg:         oklch(0.94 0.008 250);
+  --toggle-border:     oklch(0.84 0.012 250);
+  --toggle-icon-color: oklch(0.55 0.20 60);   /* deeper gold in light mode */
+}
 
 @theme {
   --color-uasd-blue: #0033A0;
@@ -7,46 +112,88 @@
   --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ============================================
+   BASE — smooth theme transition on everything
+   ============================================ */
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    background-color: var(--surface-base);
+    color: var(--text-primary);
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition:
+      background-color var(--theme-transition),
+      color var(--theme-transition);
+  }
+
+  /* Propagate smooth transition to all major surfaces */
+  *,
+  ::before,
+  ::after {
+    transition-property:
+      background-color, border-color, color, box-shadow, fill, stroke;
+    transition-duration: var(--theme-transition);
+    transition-timing-function: var(--ease-out-quart);
+  }
+
+  /* Override for animations that should NOT inherit this */
+  [class*='animate-'],
+  [style*='animation'] {
+    transition-property: none;
   }
 }
 
 /* ============================================
-   SCROLLBAR PERSONALIZADO
+   SCROLLBAR
    ============================================ */
-.chat-scroll::-webkit-scrollbar {
-  width: 5px;
-}
-.chat-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
+.chat-scroll::-webkit-scrollbar { width: 4px; }
+.chat-scroll::-webkit-scrollbar-track { background: transparent; }
 .chat-scroll::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+  background-color: var(--border-normal);
   border-radius: 10px;
 }
 .chat-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+  background-color: var(--border-strong);
 }
 
 /* ============================================
-   ANIMACIONES
+   KEYFRAMES
    ============================================ */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(20px, -30px) scale(1.05); }
+  66%       { transform: translate(-15px, 20px) scale(0.97); }
+}
+
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50%       { opacity: 1;   transform: scale(1.2); }
+  0%, 100% { opacity: 0.25; transform: scale(0.75); }
+  50%       { opacity: 1;    transform: scale(1.1); }
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 @keyframes shimmer {
@@ -54,48 +201,456 @@
   100% { background-position:  200% 0; }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out both;
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.72 0.19 145 / 0.6); }
+  50%       { box-shadow: 0 0 0 5px oklch(0.72 0.19 145 / 0); }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.45s ease-out both;
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
 }
 
-.animate-pulse-dot {
-  animation: pulse-dot 1.4s ease-in-out infinite;
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gridShift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 32px 32px; }
+}
+
+/* ── Sun/moon toggle ── */
+@keyframes rotateSun {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(20deg) scale(1.12); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes moonWobble {
+  0%   { transform: rotate(-10deg) scale(1); }
+  50%  { transform: rotate(10deg) scale(1.08); }
+  100% { transform: rotate(-10deg) scale(1); }
+}
+
+/* ── Theme transition flash ── */
+@keyframes themeFlash {
+  0%   { opacity: 0; }
+  15%  { opacity: 0.07; }
+  100% { opacity: 0; }
 }
 
 /* ============================================
-   GRADIENTE HEADER
+   ANIMATION CLASSES
+   ============================================ */
+.animate-fade-up      { animation: fadeUp 0.35s var(--ease-out-quart) both; }
+.animate-slide-in-left  { animation: slideInLeft 0.5s var(--ease-out-expo) both; }
+.animate-slide-in-right { animation: slideInRight 0.5s var(--ease-out-expo) both; }
+.animate-stagger-in   { animation: staggerIn 0.45s var(--ease-out-quart) both; }
+.animate-pulse-dot    { animation: pulse-dot 1.4s ease-in-out infinite; }
+.animate-glow-pulse   { animation: glowPulse 2.5s ease-in-out infinite; }
+.animate-shake        { animation: shake 0.35s var(--ease-out-quart); }
+.animate-scale-in     { animation: scaleIn 0.25s var(--ease-out-quart) both; }
+
+.delay-75   { animation-delay: 75ms; }
+.delay-100  { animation-delay: 100ms; }
+.delay-150  { animation-delay: 150ms; }
+.delay-200  { animation-delay: 200ms; }
+.delay-300  { animation-delay: 300ms; }
+.delay-400  { animation-delay: 400ms; }
+.delay-500  { animation-delay: 500ms; }
+.delay-600  { animation-delay: 600ms; }
+.delay-700  { animation-delay: 700ms; }
+
+/* ============================================
+   THEME TOGGLE BUTTON
+   ============================================ */
+.theme-toggle-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    background-color 200ms var(--ease-out-quart),
+    border-color 200ms var(--ease-out-quart),
+    transform 150ms var(--ease-out-quart),
+    box-shadow 200ms var(--ease-out-quart);
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 16px oklch(0.72 0.18 60 / 0.25);
+  border-color: oklch(0.72 0.18 60 / 0.50);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.94);
+}
+
+/* Icon slots — flip in/out */
+.theme-toggle-sun,
+.theme-toggle-moon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 300ms var(--ease-out-quart),
+    transform 400ms var(--ease-out-expo);
+  color: var(--toggle-icon-color);
+}
+
+/* DARK MODE → show moon, hide sun */
+html.dark .theme-toggle-sun {
+  opacity: 0;
+  transform: translateY(-16px) rotate(20deg) scale(0.6);
+}
+html.dark .theme-toggle-moon {
+  opacity: 1;
+  transform: translateY(0) rotate(0deg) scale(1);
+  animation: moonWobble 6s ease-in-out infinite;
+}
+
+/* LIGHT MODE → show sun, hide moon */
+html.light .theme-toggle-sun {
+  opacity: 1;
+  transform: translateY(0) rotate(0deg) scale(1);
+  animation: rotateSun 8s ease-in-out infinite;
+}
+html.light .theme-toggle-moon {
+  opacity: 0;
+  transform: translateY(16px) rotate(-20deg) scale(0.6);
+}
+
+/* Theme-switch flash overlay (attached to body) */
+.theme-flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--surface-base);
+  pointer-events: none;
+  z-index: 9999;
+  animation: themeFlash 500ms var(--ease-out-quart) both;
+}
+
+/* ============================================
+   TYPING CURSOR
+   ============================================ */
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background-color: var(--uasd-blue-light);
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  animation: cursorBlink 0.75s step-end infinite;
+}
+
+/* ============================================
+   HEADER
    ============================================ */
 .header-gradient {
-  background: linear-gradient(135deg, #0033A0 0%, #0047d4 100%);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 /* ============================================
-   EFECTO GLASSMORPHISM PARA SIDEBAR
+   AUTH SCREEN
+   ============================================ */
+.auth-brand-panel {
+  background: var(--auth-brand-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-brand-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--auth-dot-color) 1px,
+    transparent 0
+  );
+  background-size: 28px 28px;
+  opacity: 0.7;
+  animation: gridShift 12s linear infinite;
+}
+
+.auth-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.auth-orb-1 {
+  width: 380px; height: 380px;
+  background: var(--uasd-blue);
+  opacity: var(--auth-orb-1-op);
+  top: -80px; left: -80px;
+  animation: orbFloat 14s ease-in-out infinite;
+}
+.auth-orb-2 {
+  width: 280px; height: 280px;
+  background: oklch(0.55 0.22 290);
+  opacity: var(--auth-orb-2-op);
+  bottom: -60px; right: -40px;
+  animation: orbFloat 18s ease-in-out infinite reverse;
+}
+
+.auth-form-panel {
+  background: var(--surface-base);
+}
+
+/* Input focus ring */
+.input-group input:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: var(--uasd-blue-light) !important;
+  box-shadow: 0 0 0 3px var(--uasd-blue-dim) !important;
+  background-color: var(--surface-raised) !important;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar-panel {
+  width: var(--sidebar-width-open);
+  transition:
+    width var(--sidebar-transition),
+    background-color var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow 300ms var(--ease-out-quart);
+  background: var(--surface-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.sidebar-panel.collapsed {
+  width: var(--sidebar-width-collapsed);
+}
+
+.sidebar-label {
+  transition:
+    opacity 200ms var(--ease-out-quart),
+    transform 200ms var(--ease-out-quart),
+    max-width 300ms var(--ease-out-quart);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sidebar-panel.collapsed .sidebar-label {
+  opacity: 0;
+  max-width: 0;
+}
+.sidebar-panel:not(.collapsed) .sidebar-label {
+  opacity: 1;
+  max-width: 200px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  color: var(--text-secondary);
+  text-decoration: none;
+  overflow: hidden;
+  min-width: 0;
+}
+.sidebar-nav-item:hover {
+  background-color: var(--uasd-blue-dim);
+  color: var(--text-primary);
+}
+.sidebar-nav-item::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px; height: 60%;
+  background: var(--uasd-blue-light);
+  border-radius: 0 2px 2px 0;
+  transition: transform 150ms var(--ease-out-quart);
+}
+.sidebar-nav-item:hover::after {
+  transform: translateY(-50%) scaleY(1);
+}
+
+.sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--surface-overlay);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sidebar-toggle-btn:hover {
+  background-color: var(--uasd-blue-dim);
+  color: var(--text-primary);
+}
+.sidebar-toggle-btn.collapsed-state {
+  transform: rotate(180deg);
+}
+
+/* ============================================
+   CHAT BUBBLES
+   ============================================ */
+.bubble-bot {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-radius: 18px 18px 18px 4px;
+  box-shadow: var(--shadow-sm);
+}
+.bubble-user {
+  background: var(--uasd-blue);
+  color: oklch(0.97 0.005 250);
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 0 4px 14px var(--uasd-blue-glow);
+}
+.bubble-error {
+  background: oklch(0.14 0.025 14);
+  border: 1px solid oklch(0.30 0.08 14);
+  color: oklch(0.82 0.12 14);
+  border-radius: 18px 18px 18px 4px;
+}
+
+/* Light mode bubble overrides */
+html.light .bubble-bot {
+  background: var(--surface-raised);
+  box-shadow: 0 1px 4px oklch(0.18 0.018 250 / 0.08);
+}
+
+/* ============================================
+   CHAT INPUT
+   ============================================ */
+.chat-input-area {
+  background: var(--surface-raised);
+  border-top: 1px solid var(--border-subtle);
+}
+.chat-input-box {
+  background: var(--surface-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+}
+.chat-input-box:focus-within {
+  border-color: var(--uasd-blue-light);
+  box-shadow: 0 0 0 3px var(--uasd-blue-dim);
+}
+.chat-input-box textarea {
+  background: transparent;
+  color: var(--text-primary);
+  caret-color: var(--uasd-blue-light);
+}
+.chat-input-box textarea::placeholder {
+  color: var(--text-disabled);
+}
+
+.send-btn {
+  background: var(--uasd-blue);
+  color: oklch(0.97 0.005 250);
+  border-radius: 12px;
+  padding: 10px;
+  transition:
+    transform 150ms var(--ease-out-quart),
+    box-shadow 150ms var(--ease-out-quart),
+    background-color 150ms;
+}
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.06);
+  box-shadow: 0 4px 16px var(--uasd-blue-glow);
+  background-color: var(--uasd-blue-light);
+}
+.send-btn:active:not(:disabled) { transform: scale(0.95); }
+.send-btn:disabled {
+  background: var(--surface-overlay);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+/* ============================================
+   SHIMMER
+   ============================================ */
+.btn-shimmer { position: relative; overflow: hidden; }
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    oklch(1 0 0 / 0.18) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* ============================================
+   BOT PROSE (Markdown)
+   ============================================ */
+.bot-prose p   { margin-top: 0.3rem; margin-bottom: 0.3rem; }
+.bot-prose ul,
+.bot-prose ol  { margin-top: 0.3rem; margin-bottom: 0.3rem; padding-left: 1.25rem; }
+.bot-prose li  { margin-top: 0.15rem; margin-bottom: 0.15rem; }
+.bot-prose h1,
+.bot-prose h2,
+.bot-prose h3  { margin-top: 0.75rem; margin-bottom: 0.3rem; font-weight: 600; color: var(--text-primary); }
+.bot-prose strong { color: var(--uasd-blue-light); font-weight: 600; }
+.bot-prose code {
+  background: var(--surface-overlay);
+  color: oklch(0.75 0.12 200);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  border: 1px solid var(--border-subtle);
+}
+.bot-prose a { color: var(--uasd-blue-light); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Light mode prose tweak */
+html.light .bot-prose code {
+  background: oklch(0.92 0.010 240);
+  color: oklch(0.30 0.14 240);
+  border-color: oklch(0.84 0.014 240);
+}
+
+/* ============================================
+   GLASS CARD (compat)
    ============================================ */
 .glass-card {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 /* ============================================
-   PROSE OVERRIDE para Markdown
+   REDUCED MOTION
    ============================================ */
-.bot-prose p   { margin-top: 0.25rem; margin-bottom: 0.25rem; }
-.bot-prose ul  { margin-top: 0.25rem; margin-bottom: 0.25rem; padding-left: 1.25rem; }
-.bot-prose li  { margin-top: 0.125rem; margin-bottom: 0.125rem; }
-.bot-prose h1,
-.bot-prose h2,
-.bot-prose h3 { margin-top: 0.75rem; margin-bottom: 0.25rem; font-weight: 600; }
-.bot-prose strong { color: #1e3a8a; }
-.bot-prose code  {
-  background: #eff6ff;
-  color: #1e40af;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-size: 0.85em;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
