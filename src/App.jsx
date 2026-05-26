@@ -16,7 +16,18 @@ function App() {
   const [authLoading, setAuthLoading]       = useState(true);
   // Track the id of the most recent bot message for typewriter effect
   const [latestBotId, setLatestBotId]       = useState(null);
-  const { messages, isLoading, sendMessage, clearChat } = useChat();
+  const [prevIsLoading, setPrevIsLoading]   = useState(false);
+  const {
+    messages,
+    isLoading,
+    sendMessage,
+    clearChat,
+    sessions,
+    currentSessionId,
+    loadSession,
+    deleteSession,
+    startNewChat
+  } = useChat(user);
   const messagesEndRef = useRef(null);
 
   /* ── Auth listener ── */
@@ -38,12 +49,18 @@ function App() {
 
   /* ── Track latest bot message for typewriter ── */
   useEffect(() => {
-    const botMessages = messages.filter(m => m.sender === 'bot');
-    if (botMessages.length > 0) {
-      const last = botMessages[botMessages.length - 1];
-      setLatestBotId(last.id);
+    if (isLoading) {
+      setPrevIsLoading(true);
+    } else if (prevIsLoading) {
+      // Transicionó de cargando a listo! Significa que acabamos de recibir respuesta del bot.
+      const botMessages = messages.filter(m => m.sender === 'bot');
+      if (botMessages.length > 0) {
+        const last = botMessages[botMessages.length - 1];
+        setLatestBotId(last.id);
+      }
+      setPrevIsLoading(false);
     }
-  }, [messages]);
+  }, [isLoading, messages, prevIsLoading]);
 
   const handleLogout = async () => {
     try {
@@ -116,6 +133,11 @@ function App() {
         onClose={() => setIsSidebarOpen(false)}
         user={user}
         onLogout={handleLogout}
+        sessions={sessions}
+        currentSessionId={currentSessionId}
+        onLoadSession={loadSession}
+        onDeleteSession={deleteSession}
+        onNewChat={startNewChat}
       />
 
       {/* Main content */}

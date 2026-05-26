@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   MessageSquare, Info, BookOpen, X, Shield,
-  Users, FileText, LogOut, ChevronLeft,
+  Users, FileText, LogOut, ChevronLeft, Plus, Trash2,
 } from 'lucide-react';
 import { getAIProvider } from '../../services/aiService';
 
@@ -46,7 +46,17 @@ const FeatureItem = ({ icon, label, desc, collapsed }) => (
 );
 
 /* ─── Main sidebar ─── */
-export const Sidebar = ({ isOpen, onClose, user, onLogout }) => {
+export const Sidebar = ({
+  isOpen,
+  onClose,
+  user,
+  onLogout,
+  sessions = [],
+  currentSessionId,
+  onLoadSession,
+  onDeleteSession,
+  onNewChat
+}) => {
   const provider = getAIProvider();
 
   const [collapsed, setCollapsed] = useState(() => {
@@ -136,6 +146,67 @@ export const Sidebar = ({ isOpen, onClose, user, onLogout }) => {
 
         {/* ── Navigation content ── */}
         <div className="flex-1 overflow-y-auto chat-scroll py-4 px-3 space-y-1">
+
+          {/* New Conversation Button */}
+          <button
+            onClick={() => {
+              onNewChat();
+              onClose(); // close on mobile
+            }}
+            className="new-chat-btn"
+            title="Nueva conversación"
+          >
+            <Plus className="w-4 h-4 flex-shrink-0" />
+            <span className="sidebar-label">Nueva conversación</span>
+          </button>
+
+          {/* Conversations History */}
+          {sessions.length > 0 && (
+            <div className="mb-4">
+              <div className="sidebar-label px-2 mb-2">
+                <p className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'oklch(0.40 0.008 250)' }}>
+                  Historial
+                </p>
+              </div>
+              <div className="space-y-0.5 max-h-[220px] overflow-y-auto chat-scroll pr-1">
+                {sessions.map((session) => {
+                  const isActive = session.session_id === currentSessionId;
+                  return (
+                    <div
+                      key={session.session_id}
+                      onClick={() => {
+                        onLoadSession(session.session_id);
+                        onClose(); // Close on mobile
+                      }}
+                      className={`history-item ${isActive ? 'active' : ''}`}
+                      title={session.title}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <MessageSquare className="w-4 h-4 flex-shrink-0" style={{ color: isActive ? 'var(--uasd-blue-light)' : 'var(--text-muted)' }} />
+                        <span className="history-item-text sidebar-label">
+                          {session.title}
+                        </span>
+                      </div>
+                      
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm('¿Seguro que deseas eliminar esta conversación de tu historial?')) {
+                            onDeleteSession(session.session_id);
+                          }
+                        }}
+                        className="history-delete-btn sidebar-label"
+                        title="Eliminar conversación"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Info notice */}
           <div

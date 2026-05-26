@@ -641,6 +641,111 @@ html.light .bot-prose code {
   -webkit-backdrop-filter: blur(12px);
 }
 
+
+/* ============================================
+   CHAT HISTORY STYLES
+   ============================================ */
+.history-title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  color: var(--text-secondary);
+  transition: background-color 200ms, color 200ms, transform 150ms var(--ease-out-quart);
+  min-width: 0;
+  margin-bottom: 2px;
+}
+
+.history-item:hover {
+  background-color: var(--surface-overlay);
+  color: var(--text-primary);
+}
+
+.history-item.active {
+  background-color: var(--uasd-blue-dim);
+  border: 1px solid oklch(0.38 0.19 264 / 0.25);
+  color: var(--text-primary);
+}
+
+.history-item-text {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  text-align: left;
+}
+
+.history-delete-btn {
+  opacity: 0;
+  transition: opacity 150ms var(--ease-out-quart), transform 150ms var(--ease-out-quart);
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-item:hover .history-delete-btn {
+  opacity: 1;
+}
+
+.history-delete-btn:hover {
+  color: var(--uasd-red);
+  background-color: oklch(0.48 0.24 14 / 0.15);
+  transform: scale(1.1);
+}
+
+.history-delete-btn:active {
+  transform: scale(0.9);
+}
+
+/* Button "Nueva Conversación" in sidebar */
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms var(--ease-out-quart), background-color 200ms, border-color 200ms;
+  background: var(--surface-overlay);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 1rem;
+}
+
+.new-chat-btn:hover {
+  background: var(--uasd-blue-dim);
+  border-color: var(--uasd-blue-light);
+  color: var(--uasd-blue-light);
+}
+
+.new-chat-btn:active {
+  transform: scale(0.98);
+}
+
 /* ============================================
    REDUCED MOTION
    ============================================ */
@@ -654,3 +759,4 @@ html.light .bot-prose code {
     scroll-behavior: auto !important;
   }
 }
+
